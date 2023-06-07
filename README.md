@@ -23,7 +23,7 @@ This project is a video search application that allows users to search for video
 * How to run the program
 * install dependencies by running
 ```
-pip install -r reuirements.txt
+pip install -r requirements.txt
 ```
 * start celery log level worker for performing tasks
 ```
@@ -56,7 +56,7 @@ then visit - (http://127.0.0.1:8000/)
 
 
 ex. Manjunath Kotabal 
-ex. [@DomPizzie](https://manjunathk.vercel.app/)
+ex. [@manjukotabal](https://twitter.com/manjukotabal)
 
 ## Version History
 
