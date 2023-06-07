@@ -20,17 +20,17 @@ def process_video(video_id):
     video_file_path = video.file.path
 
     # Extract subtitles using CCExtractor or ffmpeg
-    subtitles_file_path = f'{video_file_path}.srt'
+    subtitles_file_path = f'{video_file_path}.vtt'
     ccextractor_command = f'ffmpeg -i "{video_file_path}" -map 0:s:0 "{subtitles_file_path}" -y'
     subprocess.run(ccextractor_command, shell=True)
 
     # Upload the video file to S3
     video_object_key = f'{video_id}/video.mp4'
-    s3.upload_file(video_file_path, 'ecowiser-videos', video_object_key,ExtraArgs={'ACL': 'public-read'})
+    s3.upload_file(video_file_path, 'ecowiser-videos', video_object_key, ExtraArgs={'ACL': 'public-read'})
 
     # Upload the subtitles file to S3
-    subtitles_object_key = f'{video_id}/subtitles.srt'
-    s3.upload_file(subtitles_file_path, 'ecowiser-videos', subtitles_object_key,ExtraArgs={'ACL': 'public-read'})
+    subtitles_object_key = f'{video_id}/subtitles.vtt'
+    s3.upload_file(subtitles_file_path, 'ecowiser-videos', subtitles_object_key, ExtraArgs={'ACL': 'public-read'})
 
     # Create a DynamoDB resource
     dynamodb_resource = boto3.resource('dynamodb', region_name='ap-south-1')
@@ -62,6 +62,7 @@ def process_video(video_id):
                     'AttributeType': 'N'
                 }
             ],
+
             ProvisionedThroughput={
                 'ReadCapacityUnits': 5,
                 'WriteCapacityUnits': 5
@@ -76,21 +77,22 @@ def process_video(video_id):
 
     # Read the subtitles from the file
     with open(subtitles_file_path, 'r') as subtitles_file:
+        # Skip the first line as it contains the WEBVTT header
+        subtitles_file.readline()
+        # Read the subtitles from the file
         subtitles = subtitles_file.read().strip().split('\n\n')
 
-    print(len(subtitles))
     with table.batch_writer(overwrite_by_pkeys=False) as batch:
+        subtitle_id = 1  # Initialize subtitle ID
         for subtitle in subtitles:
             subtitle_lines = subtitle.strip().split('\n')
-            subtitle_id = int(subtitle_lines[0])
-            time_line = subtitle_lines[1]
-            content_lines = subtitle_lines[2:]
+            time_line = subtitle_lines[0]
+            content_lines = subtitle_lines[1:]
 
             start_time, end_time = time_line.split(' --> ')
 
             # Extract the content without HTML tags
             content = ' '.join(content_lines)
-            content = re.sub('<.*?>', '', content)
 
             video_id = int(video_id)
 
@@ -108,7 +110,7 @@ def process_video(video_id):
                     Item=item,
                     ConditionExpression='attribute_not_exists(video_id) AND attribute_not_exists(subtitle_id)'
                 )
-                print("inserting ...")
+                print(f"inserting ...{subtitle_id}")
             except dynamodb_resource.meta.client.exceptions.ConditionalCheckFailedException:
                 # Item already exists, skip insertion
                 print(f'Subtitle with ID {subtitle_id} for video {video_id} already exists')
@@ -117,7 +119,8 @@ def process_video(video_id):
                 print(f'Error inserting subtitle: {subtitle_id} for video {video_id}')
                 print(e)
 
-            
+            subtitle_id += 1  # Increment subtitle ID
+
     # Clean up the temporary subtitles file
     subprocess.run(f'rm "{subtitles_file_path}"', shell=True)
     subprocess.run(f'rm "{video_file_path}"', shell=True)

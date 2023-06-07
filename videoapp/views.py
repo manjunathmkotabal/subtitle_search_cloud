@@ -2,9 +2,9 @@ from django.shortcuts import render
 from .tasks import process_video
 from .models import Video
 import boto3
+import requests
+from django.http import HttpResponse
 
-
-import boto3
 
 def get_videos_from_s3():
     s3 = boto3.client('s3')
@@ -71,6 +71,24 @@ def query_subtitles_by_keyword(keyword):
 
 
 
+def proxy_resource(request, url):
+    try:
+        # Send a GET request to the requested URL
+        response = requests.get(url)
+
+        # Create an HttpResponse object with the response content and headers
+        proxy_response = HttpResponse(response.content, content_type=response.headers['Content-Type'])
+
+        # Copy the response headers from the original response to the HttpResponse object
+        for header, value in response.headers.items():
+            proxy_response[header] = value
+
+        return proxy_response
+
+    except requests.exceptions.RequestException:
+        # Handle any exceptions that may occur during the request
+        return HttpResponse(status=500)
+
 
 
 # Create your views here.
@@ -92,32 +110,38 @@ def upload_video(request):
     return render(request, 'videoapp/upload.html', {'success_message': None}) # Render the upload form template for GET requests 
 
 
+import requests
+
+PROXY_URL = 'http://127.0.0.1:8000'  # Replace with your actual proxy URL
+
 def search_videos(request):
+    keyword = request.POST.get('keyword', '').upper()
     videos = get_videos_from_s3()  # Get all videos initially
-    keyword = ''
 
-    if request.method == 'POST':
-        keyword = request.POST.get('keyword', '').upper()
-        if keyword:
-            video_ids, timestamps = query_subtitles_by_keyword(keyword)
+    if keyword:
+        video_ids, timestamps = query_subtitles_by_keyword(keyword)
 
-            if len(video_ids) > 0:
-                videos = [video for video in videos if video['video_id'] in video_ids]
+        if len(video_ids) > 0:
+            videos = [video for video in videos if video['video_id'] in video_ids]
 
-                for video in videos:
-                    video['timestamps'] = []  # Initialize an empty list for timestamps
+            for video in videos:
+                video['timestamps'] = []  # Initialize an empty list for timestamps
 
-                    for timestamp in timestamps:
-                        if video['video_id'] == timestamp['video_id']:
-                            video['timestamps'].append({
-                                'start_time': timestamp['start_time'],
-                                'end_time': timestamp['end_time']
-                            })
+                for timestamp in timestamps:
+                    if video['video_id'] == timestamp['video_id']:
+                        video['timestamps'].append({
+                            'start_time': timestamp['start_time'],
+                            'end_time': timestamp['end_time']
+                        })
 
     if not videos:
         message = "No videos found in the bucket. If uploaded just now, it's probably being processed. Please wait for a minute."
     else:
         message = ""
+
+    for video in videos:
+        if 'srt_url' in video:
+            video['srt_url'] = f"{PROXY_URL}/proxy/https://ecowiser-videos.s3.ap-south-1.amazonaws.com/output.vtt"
 
     context = {'videos': videos, 'keyword': keyword, 'message': message}
     return render(request, 'videoapp/search.html', context)

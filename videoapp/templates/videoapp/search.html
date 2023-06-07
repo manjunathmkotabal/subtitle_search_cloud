@@ -117,12 +117,11 @@
         }
 
         .toggle-button {
-            background-color: #528603;
+            background-color: #1eba09;
             border: none;
-            color: #ebecf3;
+            color: #ebe6e6;
             padding: 6px 12px;
             cursor: pointer;
-            margin-bottom: 3px;
         }
 
         .timestamp-item {
@@ -137,8 +136,8 @@
         }
 
         video::cue {
-            color: rgb(20, 29, 182); /* Change the color of the subtitle text */
-            background-color: rgba(235, 34, 34, 0.7); /* Change the background color of the subtitle box */
+            color: rgb(236, 236, 240); /* Change the color of the subtitle text */
+            background-color: rgba(16, 13, 13, 0.7); /* Change the background color of the subtitle box */
             font-size: 16px; /* Change the font size of the subtitle text */
             padding: 4px 8px; /* Adjust the padding around the subtitle text */
             border-radius: 4px; /* Add rounded corners to the subtitle box */
@@ -162,42 +161,14 @@
         {% if message %}
             <p>{{ message }}</p>
         {% endif %}
-<!-- 
-        {% if videos %}
-            <ul class="video-list">
-                {% for video in videos %}
-                    <li class="video-item">
-                        {% if video.video_url %}
-                            <video id="video-{{ video.id }}" class="video-player" controls>
-                                <source src="{{ video.video_url }}" type="video/mp4">
-                                <track src="{{ video.srt_url }}" kind="subtitles" srclang="en" label="English">
-                                Your browser does not support the video tag.
-                            </video>
-                        {% endif %}
 
-                        {% if video.timestamps %}
-                            <h3>Timestamps:</h3>
-                            <button class="toggle-button">Show Timestamps</button>
-                            <ul class="timestamps">
-                                {% for timestamp in video.timestamps %}
-                                    <li class="timestamp-item">
-                                        <a href="#" class="timestamp-link" data-video-id="video-{{ video.id }}" data-start-time="{{ timestamp.start_time }}">{{ timestamp.start_time }} - {{ timestamp.end_time }}</a>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        {% endif %}
-
-                    </li>
-                {% endfor %}
-            </ul>
-        {% endif %} -->
 
         {% if videos %}
             <ul class="video-list">
                 {% for video in videos %}
                     <li class="video-item">
                         {% if video.video_url %}
-                            <video id="video-{{ video.id }}" class="video-player" controls>
+                            <video class="video-player" controls>
                                 <source src="{{ video.video_url }}" type="video/mp4">
                                 <track src={{video.srt_url}} kind="subtitles" srclang="en" label="English">
                                 Your browser does not support the video tag.

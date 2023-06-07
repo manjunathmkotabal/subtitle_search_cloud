@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'videoapp',
     'django_celery_results',
-    'redis'
+    'redis',
+    'proxy'
 ]
 
 MIDDLEWARE = [
