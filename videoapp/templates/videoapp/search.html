@@ -170,7 +170,7 @@
                         {% if video.video_url %}
                             <video class="video-player" controls>
                                 <source src="{{ video.video_url }}" type="video/mp4">
-                                <track src={{video.srt_url}} kind="subtitles" srclang="en" label="English">
+                                <track src="{{video.vtt_url}}" kind="subtitles" srclang="en" label="English">
                                 Your browser does not support the video tag.
                             </video>
                         {% endif %}

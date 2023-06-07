@@ -18,9 +18,9 @@ def get_videos_from_s3():
                 video_id = key.split('/')[0]
                 video_key = f"{video_id}/video.mp4"
                 video_url = f"https://ecowiser-videos.s3.amazonaws.com/{video_key}"
-                srt_key = f"{video_id}/subtitles.srt"
-                srt_url = f"https://ecowiser-videos.s3.amazonaws.com/{srt_key}"
-                videos.append({'video_url': video_url, 'srt_url': srt_url,'video_id':video_id})
+                vtt_key = f"{video_id}/subtitles.vtt"
+                vtt_url = f"https://ecowiser-videos.s3.amazonaws.com/{vtt_key}"
+                videos.append({'video_url': video_url, 'vtt_url': vtt_url,'video_id':video_id})
 
         return videos
     else:
@@ -140,8 +140,11 @@ def search_videos(request):
         message = ""
 
     for video in videos:
-        if 'srt_url' in video:
-            video['srt_url'] = f"{PROXY_URL}/proxy/https://ecowiser-videos.s3.ap-south-1.amazonaws.com/output.vtt"
+        if 'vtt_url' in video:
+            print(video['vtt_url'])
+            video['vtt_url'] = f"{PROXY_URL}/proxy/{video['vtt_url']}"
+        else:
+            print("vtt_file error")
 
     context = {'videos': videos, 'keyword': keyword, 'message': message}
     return render(request, 'videoapp/search.html', context)
