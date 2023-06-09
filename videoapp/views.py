@@ -112,7 +112,7 @@ def upload_video(request):
 
 import requests
 
-PROXY_URL = 'http://127.0.0.1:8000'  # Replace with your actual proxy URL
+PROXY_URL = 'http://0.0.0.0:8000'  # Replace with your actual proxy URL
 
 def search_videos(request):
     keyword = request.POST.get('keyword', '').upper()
