@@ -4,10 +4,12 @@ from .models import Video
 import boto3
 import requests
 from django.http import HttpResponse
+from django.conf import settings
+
 
 
 def get_videos_from_s3():
-    s3 = boto3.client('s3')
+    s3 = boto3.client('s3',aws_access_key_id = settings.AWS_ACCESS_KEY_ID,aws_secret_access_key_id = settings.AWS_SECRET_ACCESS_KEY_ID,region_name = settings.AWS_S3_REGION_NAME)
     response = s3.list_objects_v2(Bucket='ecowiser-videos')
 
     if 'Contents' in response:
@@ -27,15 +29,13 @@ def get_videos_from_s3():
         return []  # Return an empty list if the bucket is empty
 
 
-# Create a DynamoDB client
-dynamodb = boto3.client('dynamodb',region_name = "ap-south-1")
 
 def query_subtitles_by_keyword(keyword):
     # Define the DynamoDB table name
     table_name = 'Subtitles'
 
     # Create a DynamoDB client
-    dynamodb = boto3.client('dynamodb', region_name='ap-south-1')
+    dynamodb = boto3.client('dynamodb',aws_access_key_id = settings.AWS_ACCESS_KEY_ID,aws_secret_access_key_id = settings.AWS_SECRET_ACCESS_KEY_ID,region_name = settings.AWS_S3_REGION_NAME)
 
     # Define the search parameters
     expression_attribute_values = {
