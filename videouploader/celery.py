@@ -7,10 +7,6 @@ import redis
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'videouploader.settings')
 
 app = Celery('videouploader')
-# app.conf.enable_utc = False
-# # Load task modules from all registered Django app configs.
-
-# app.conf.update(timezone = 'Asia/Kotkata')
 
 app.config_from_object(settings, namespace = 'CELERY')
 
