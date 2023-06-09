@@ -4,14 +4,20 @@ import boto3
 import subprocess
 import re
 from botocore.exceptions import ClientError
+import os 
+
+AWS_ACCESS_KEY_ID=os.environ.get("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY_ID=os.environ.get("AWS_SECRET_ACCESS_KEY_ID")
+AWS_S3_REGION_NAME=os.environ.get("AWS_S3_REGION_NAM")
+
 
 @shared_task
 def process_video(video_id):
     # Create an S3 client
-    s3 = boto3.client('s3', region_name='ap-south-1')
+    s3 = boto3.client('s3', region_name=AWS_S3_REGION_NAME,aws_access_key_id =AWS_ACCESS_KEY_ID,aws_secret_access_key_id =AWS_SECRET_ACCESS_KEY_ID)
 
     # Create a DynamoDB client
-    dynamodb = boto3.client('dynamodb', region_name='ap-south-1')
+    dynamodb = boto3.client('dynamodb', region_name=AWS_S3_REGION_NAME,aws_access_key_id =AWS_ACCESS_KEY_ID,aws_secret_access_key_id =AWS_SECRET_ACCESS_KEY_ID)
 
     # Retrieve the Video object from the database
     video = Video.objects.get(id=video_id)
