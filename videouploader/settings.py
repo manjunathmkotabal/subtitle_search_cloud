@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,7 +26,7 @@ SECRET_KEY = 'django-insecure-oghh86@d!n#50&&x9@m&!v_xlj&yh4%6t4xqnttf_=&ji1i1yl
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -38,7 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'videoapp',
-    'django_celery_results',
     'redis',
     'proxy'
 ]
@@ -85,9 +85,6 @@ DATABASES = {
 }
 
 
-# Password validation
-# https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -128,8 +125,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 #celery settings
-CELERY_RESULT_BACKEND = 'django-db'
-CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
+CELERY_RESULT_BACKEND = os.environ.get("CELERY_BROKER","redis://redis:6379/0")
+CELERY_BROKER_URL = os.environ.get("CELERY_BACKEND","redis://redis:6379/0")
 # CELERY_ACCEPT_CONTENT = ['application/json']
 # CELERY_RESULT_SERIALIZER = 'json'
 # CELERY_TASK_SERIALIZER = 'json'
@@ -146,11 +143,3 @@ AWS_ACCESS_KEY_ID = 'AKIAR7I3Y3YLZY42MPMZ'
 AWS_SECRET_ACCESS_KEY = 'G5oUuSO0bPFInvMbAphoHHB4jOJF6vHp9qz3Sho3'
 AWS_STORAGE_BUCKET_NAME = 'ecowiser-vedio'
 AWS_S3_REGION_NAME = 'ap-south-1'  # e.g., 'us-east-1'
-
-# Set the S3 bucket URL for serving static files
-STATIC_URL = f'https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/'
-
-
-AWS_DYNAMODB_REGION_NAME = 'ap-south-1'
-
-AWS_DEFAULT_REGION = 'ap-south-1'
