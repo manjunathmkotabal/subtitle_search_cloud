@@ -1,1 +1,22 @@
+# Use an official Python runtime as the base image
+FROM python:3.10 AS base
 
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+
+# Set the working directory in the container
+WORKDIR /usr/src/app
+
+#install FFMPEG from the previous image
+COPY --from=jrottenberg/ffmpeg:4.4-ubuntu /usr/local /usr/local
+
+# Install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy project files to the working directory
+COPY . .
+
+#django container
+FROM base AS celery
