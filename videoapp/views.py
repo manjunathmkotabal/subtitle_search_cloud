@@ -9,7 +9,7 @@ from django.conf import settings
 
 
 def get_videos_from_s3():
-    s3 = boto3.client('s3',aws_access_key_id = settings.AWS_ACCESS_KEY_ID,aws_secret_access_key_id = settings.AWS_SECRET_ACCESS_KEY_ID,region_name = settings.AWS_S3_REGION_NAME)
+    s3 = boto3.client('s3',aws_access_key_id = settings.AWS_ACCESS_KEY_ID,aws_secret_access_key = settings.AWS_SECRET_ACCESS_KEY,region_name = settings.AWS_S3_REGION_NAME)
     response = s3.list_objects_v2(Bucket='ecowiser-videos')
 
     if 'Contents' in response:
@@ -35,7 +35,7 @@ def query_subtitles_by_keyword(keyword):
     table_name = 'Subtitles'
 
     # Create a DynamoDB client
-    dynamodb = boto3.client('dynamodb',aws_access_key_id = settings.AWS_ACCESS_KEY_ID,aws_secret_access_key_id = settings.AWS_SECRET_ACCESS_KEY_ID,region_name = settings.AWS_S3_REGION_NAME)
+    dynamodb = boto3.client('dynamodb',aws_access_key_id = settings.AWS_ACCESS_KEY_ID,aws_secret_access_key = settings.AWS_SECRET_ACCESS_KEY,region_name = settings.AWS_S3_REGION_NAME)
 
     # Define the search parameters
     expression_attribute_values = {
@@ -71,6 +71,10 @@ def query_subtitles_by_keyword(keyword):
 
 
 
+
+HOP_BY_HOP_HEADERS = ['connection', 'keep-alive', 'proxy-authenticate', 'proxy-authorization',
+                      'te', 'trailers', 'transfer-encoding', 'upgrade']
+
 def proxy_resource(request, url):
     try:
         # Send a GET request to the requested URL
@@ -81,13 +85,15 @@ def proxy_resource(request, url):
 
         # Copy the response headers from the original response to the HttpResponse object
         for header, value in response.headers.items():
-            proxy_response[header] = value
+            if header.lower() not in HOP_BY_HOP_HEADERS:
+                proxy_response[header] = value
 
         return proxy_response
 
     except requests.exceptions.RequestException:
         # Handle any exceptions that may occur during the request
         return HttpResponse(status=500)
+
 
 
 
@@ -110,9 +116,8 @@ def upload_video(request):
     return render(request, 'videoapp/upload.html', {'success_message': None}) # Render the upload form template for GET requests 
 
 
-import requests
 
-PROXY_URL = 'http://0.0.0.0:8000'  # Replace with your actual proxy URL
+PROXY_URL = 'http://localhost:8000'  # Replace with your actual proxy URL
 
 def search_videos(request):
     keyword = request.POST.get('keyword', '').upper()

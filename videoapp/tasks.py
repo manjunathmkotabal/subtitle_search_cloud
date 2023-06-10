@@ -7,17 +7,17 @@ from botocore.exceptions import ClientError
 import os 
 
 AWS_ACCESS_KEY_ID=os.environ.get("AWS_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY_ID=os.environ.get("AWS_SECRET_ACCESS_KEY_ID")
-AWS_S3_REGION_NAME=os.environ.get("AWS_S3_REGION_NAM")
+AWS_SECRET_ACCESS_KEY=os.environ.get("AWS_SECRET_ACCESS_KEY")
+AWS_S3_REGION_NAME=os.environ.get("AWS_S3_REGION_NAME")
 
 
 @shared_task
 def process_video(video_id):
     # Create an S3 client
-    s3 = boto3.client('s3', region_name=AWS_S3_REGION_NAME,aws_access_key_id =AWS_ACCESS_KEY_ID,aws_secret_access_key_id =AWS_SECRET_ACCESS_KEY_ID)
+    s3 = boto3.client('s3', region_name=AWS_S3_REGION_NAME,aws_access_key_id =AWS_ACCESS_KEY_ID,aws_secret_access_key =AWS_SECRET_ACCESS_KEY)
 
     # Create a DynamoDB client
-    dynamodb = boto3.client('dynamodb', region_name=AWS_S3_REGION_NAME,aws_access_key_id =AWS_ACCESS_KEY_ID,aws_secret_access_key_id =AWS_SECRET_ACCESS_KEY_ID)
+    dynamodb = boto3.client('dynamodb', region_name=AWS_S3_REGION_NAME,aws_access_key_id =AWS_ACCESS_KEY_ID,aws_secret_access_key =AWS_SECRET_ACCESS_KEY)
 
     # Retrieve the Video object from the database
     video = Video.objects.get(id=video_id)
@@ -39,8 +39,7 @@ def process_video(video_id):
     s3.upload_file(subtitles_file_path, 'ecowiser-videos', subtitles_object_key, ExtraArgs={'ACL': 'public-read'})
 
     # Create a DynamoDB resource
-    dynamodb_resource = boto3.resource('dynamodb', region_name='ap-south-1')
-
+    dynamodb_resource = boto3.resource('dynamodb', region_name=AWS_S3_REGION_NAME,aws_access_key_id =AWS_ACCESS_KEY_ID,aws_secret_access_key =AWS_SECRET_ACCESS_KEY)
     # Specify the table name
     table_name = 'Subtitles'
 

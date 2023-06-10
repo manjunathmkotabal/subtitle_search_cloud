@@ -9,13 +9,13 @@ services:
     ports:
       - 8000:8000
     volumes:
-      -.:/usr/src/app
+      - .:/usr/src/app
     depends_on:
       - redis
     environment:
-      - "DEBUG:1"
-      - "DJANGO_ALLOWED_HOSTS:localhost, 127.0.0.1,0.0.0.0"
-      - CELERY_BROKER=redis://redis:6379/0 -
+      - DEBUG=1
+      - DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
+      - CELERY_BROKER=redis://redis:6379/0
       - CELERY_BACKEND=redis://redis:6379/0
 
   celery:
@@ -29,8 +29,9 @@ services:
       - django
       - redis
     environment:
-      - AWS_ACCESS_KEY_ID='AKIAR713Y3YLZY42MPMZ
-      - AWS_SECRET_ACCESS_KEY='G5oUuSO0bPFInvMbAphoHHB4jOJF6vHp9qz3Sho3'
-      - AWS_S3_REGION_NAME='ap-south-1' # e.g., 'us-east-1'
+      - AWS_ACCESS_KEY_ID=AKIAR7I3Y3YLZY42MPMZ
+      - AWS_SECRET_ACCESS_KEY=G5oUuSO0bPFInvMbAphoHHB4jOJF6vHp9qz3Sho3
+      - AWS_S3_REGION_NAME=ap-south-1
+
   redis:  
     image: redis:latest
