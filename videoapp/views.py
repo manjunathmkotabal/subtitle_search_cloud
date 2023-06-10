@@ -10,7 +10,7 @@ from django.conf import settings
 
 def get_videos_from_s3():
     s3 = boto3.client('s3',aws_access_key_id = settings.AWS_ACCESS_KEY_ID,aws_secret_access_key = settings.AWS_SECRET_ACCESS_KEY,region_name = settings.AWS_S3_REGION_NAME)
-    response = s3.list_objects_v2(Bucket='ecowiser-videos')
+    response = s3.list_objects_v2(Bucket=settings.AWS_S3_BUCKET_NAME)
 
     if 'Contents' in response:
         videos = []
@@ -19,9 +19,9 @@ def get_videos_from_s3():
             if key.endswith('.mp4'):
                 video_id = key.split('/')[0]
                 video_key = f"{video_id}/video.mp4"
-                video_url = f"https://ecowiser-videos.s3.amazonaws.com/{video_key}"
+                video_url = f"https://{settings.AWS_S3_BUCKET_NAME}.s3.amazonaws.com/{video_key}"
                 vtt_key = f"{video_id}/subtitles.vtt"
-                vtt_url = f"https://ecowiser-videos.s3.amazonaws.com/{vtt_key}"
+                vtt_url = f"https://{settings.AWS_S3_BUCKET_NAME}.s3.amazonaws.com/{vtt_key}"
                 videos.append({'video_url': video_url, 'vtt_url': vtt_url,'video_id':video_id})
 
         return videos
@@ -32,7 +32,7 @@ def get_videos_from_s3():
 
 def query_subtitles_by_keyword(keyword):
     # Define the DynamoDB table name
-    table_name = 'Subtitles'
+    table_name = settings.AWS_DYNAMODB_TABLE_NAME
 
     # Create a DynamoDB client
     dynamodb = boto3.client('dynamodb',aws_access_key_id = settings.AWS_ACCESS_KEY_ID,aws_secret_access_key = settings.AWS_SECRET_ACCESS_KEY,region_name = settings.AWS_S3_REGION_NAME)

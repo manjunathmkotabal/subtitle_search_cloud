@@ -9,15 +9,21 @@ import os
 AWS_ACCESS_KEY_ID=os.environ.get("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY=os.environ.get("AWS_SECRET_ACCESS_KEY")
 AWS_S3_REGION_NAME=os.environ.get("AWS_S3_REGION_NAME")
-
+AWS_S3_BUCKET_NAME = os.environ.get("AWS_S3_BUCKET_NAME")
+AWS_DYNAMODB_TABLE_NAME = os.environ.get("AWS_DYNAMODB_TABLE_NAME")
 
 @shared_task
 def process_video(video_id):
     # Create an S3 client
     s3 = boto3.client('s3', region_name=AWS_S3_REGION_NAME,aws_access_key_id =AWS_ACCESS_KEY_ID,aws_secret_access_key =AWS_SECRET_ACCESS_KEY)
 
-    # Create a DynamoDB client
-    dynamodb = boto3.client('dynamodb', region_name=AWS_S3_REGION_NAME,aws_access_key_id =AWS_ACCESS_KEY_ID,aws_secret_access_key =AWS_SECRET_ACCESS_KEY)
+    # Create an S3 bucket if it doesn't already exist
+    try:
+        s3.create_bucket(Bucket=AWS_S3_BUCKET_NAME)
+    except ClientError as e:
+        # If the bucket already exists, ignore the exception
+        if e.response['Error']['Code'] != 'BucketAlreadyOwnedByYou':
+            print(f'Error creating bucket: {e}')
 
     # Retrieve the Video object from the database
     video = Video.objects.get(id=video_id)
@@ -27,21 +33,21 @@ def process_video(video_id):
 
     # Extract subtitles using CCExtractor or ffmpeg
     subtitles_file_path = f'{video_file_path}.vtt'
-    ccextractor_command = f'ffmpeg -i "{video_file_path}" -map 0:s:0 "{subtitles_file_path}" -y'
+    ccextractor_command = f'ffmpeg -i {video_file_path} -map 0:s {subtitles_file_path}'
     subprocess.run(ccextractor_command, shell=True)
 
     # Upload the video file to S3
     video_object_key = f'{video_id}/video.mp4'
-    s3.upload_file(video_file_path, 'ecowiser-videos', video_object_key, ExtraArgs={'ACL': 'public-read'})
+    s3.upload_file(video_file_path, AWS_S3_BUCKET_NAME, video_object_key, ExtraArgs={'ACL': 'public-read'})
 
     # Upload the subtitles file to S3
     subtitles_object_key = f'{video_id}/subtitles.vtt'
-    s3.upload_file(subtitles_file_path, 'ecowiser-videos', subtitles_object_key, ExtraArgs={'ACL': 'public-read'})
+    s3.upload_file(subtitles_file_path,AWS_S3_BUCKET_NAME, subtitles_object_key, ExtraArgs={'ACL': 'public-read'})
 
     # Create a DynamoDB resource
     dynamodb_resource = boto3.resource('dynamodb', region_name=AWS_S3_REGION_NAME,aws_access_key_id =AWS_ACCESS_KEY_ID,aws_secret_access_key =AWS_SECRET_ACCESS_KEY)
     # Specify the table name
-    table_name = 'Subtitles'
+    table_name = AWS_DYNAMODB_TABLE_NAME
 
     try:
         # Create the DynamoDB table

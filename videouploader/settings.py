@@ -138,5 +138,6 @@ CELERY_IMPORTS = (
 
 AWS_ACCESS_KEY_ID = 'AKIAR7I3Y3YLZY42MPMZ'
 AWS_SECRET_ACCESS_KEY = 'G5oUuSO0bPFInvMbAphoHHB4jOJF6vHp9qz3Sho3'
-AWS_STORAGE_BUCKET_NAME = 'ecowiser-vedio'
-AWS_S3_REGION_NAME = 'ap-south-1'  # e.g., 'us-east-1'
+AWS_S3_BUCKET_NAME = 'ecowiser-videos'
+AWS_S3_REGION_NAME = 'ap-south-1'
+AWS_DYNAMODB_TABLE_NAME = 'Subtitles'  # e.g., 'us-east-1'
