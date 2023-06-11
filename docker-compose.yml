@@ -29,11 +29,12 @@ services:
       - django
       - redis
     environment:
-      - AWS_ACCESS_KEY_ID=AKIAR7I3Y3YLZY42MPMZ
-      - AWS_SECRET_ACCESS_KEY=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
-      - AWS_S3_REGION_NAME=ap-south-1
-      - AWS_S3_BUCKET_NAME=ecowiser-videos 
-      - AWS_DYNAMODB_TABLE_NAME=Subtitles
+    # add values to these without quotes example : access_key = your access_key
+      - AWS_ACCESS_KEY_ID=
+      - AWS_SECRET_ACCESS_KEY=
+      - AWS_S3_REGION_NAME=
+      - AWS_S3_BUCKET_NAME=
+      - AWS_DYNAMODB_TABLE_NAME=
 
   redis:  
     image: redis:latest

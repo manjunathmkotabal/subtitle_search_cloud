@@ -5,6 +5,7 @@ import boto3
 import requests
 from django.http import HttpResponse
 from django.conf import settings
+import time
 
 
 
@@ -104,7 +105,7 @@ def upload_video(request):
         # Handle the video upload and save the file
         video_file = request.FILES['video']
         video = Video.objects.create(file=video_file)
-
+        time.sleep(10)
         # Trigger the background task to process the video asynchronously
         process_video.delay(video.id)
 
