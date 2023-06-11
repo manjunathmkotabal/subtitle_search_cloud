@@ -1,6 +1,6 @@
 # subtitle_search_cloud
-
-Upload videos with embedded subtitles and search for vides with phrases
+* its a microservices version of my (https://github.com/manjunathmkotabal/subtitle_search_monolith)
+* Upload videos with embedded subtitles and search for vides with phrases
 
 ## Description
 
@@ -8,6 +8,7 @@ This project is a video search application that allows users to search for video
 
 ## Getting Started
 
+### Note: there is an error in this project which needs to be fixed , related to the subtitle extraction process.
 ### Dependencies
 
 * Django , celery 
@@ -20,40 +21,28 @@ This project is a video search application that allows users to search for video
 
 ### Executing program
 
+
 * How to run the program
-* install dependencies by running
+* make sure that your docker-desktop(windows) is running , if in linux just check you have docker engine and docker-compose
+* then run this command for building
 ```
-pip install -r requirements.txt
+sudo docker-compose build 
 ```
-* start celery log level worker for performing tasks
+* then run using 
 ```
-celery -A videouploader worker -l info
+sudo docker-compose up
 ```
-* make migrations 
+* or to do both in a single command use 
 ```
-python manage.py makemigrations
-python manage.py migrate
+sudo docker-compose up --build
 ```
-* Start the server by running 
-```
-python manage.py runserver
-```
-then visit - (http://127.0.0.1:8000/)
-
-* for creating admin credentials run
-```
-python manage.py createsuperuser
-```
-enter credentials 
-
-then visit - (http://127.0.0.1:8000/)
+* then visit - (http://localhost:8000/) or (http://0.0.0.0:8000/)
 
 ## Help
 
 * if you find any errors, feel free to contact me
 
 ## Authors
-
 
 ex. Manjunath Kotabal 
 ex. [@manjukotabal](https://twitter.com/manjukotabal)
